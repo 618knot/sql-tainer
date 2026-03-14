@@ -10,6 +10,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
+import { SchemaViewer, type SchemaInfo } from '@/components/question/SchemaViewer'
 
 export const Route = createFileRoute('/question/$id')({
   component: QuestionPage,
@@ -32,7 +33,7 @@ function QuestionPage() {
   const [expectedError, setExpectedError] = useState<string | null>(null)
 
   // Schema state
-  const [schemaInfo, setSchemaInfo] = useState<{ tableName: string; columns: { column_name: string; data_type: string }[] }[] | null>(null)
+  const [schemaInfo, setSchemaInfo] = useState<SchemaInfo[] | null>(null)
   const [schemaError, setSchemaError] = useState<string | null>(null)
 
   if (!question) {
@@ -271,48 +272,7 @@ function QuestionPage() {
             </TabsContent>
 
             <TabsContent value="schema" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
-              <div className="p-4 flex-1">
-                {schemaError && (
-                  <Alert variant="destructive" className="mb-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{schemaError}</AlertDescription>
-                  </Alert>
-                )}
-                {!schemaInfo && !schemaError ? (
-                  <div className="flex h-full items-center justify-center text-gray-400">
-                    読み込み中...
-                  </div>
-                ) : schemaInfo && schemaInfo.length === 0 ? (
-                  <div className="text-gray-500 italic p-4">スキーマ情報がありません</div>
-                ) : schemaInfo ? (
-                  <div className="space-y-6">
-                    {schemaInfo.map((table) => (
-                      <div key={table.tableName}>
-                        <h3 className="font-semibold text-gray-800 mb-2">{table.tableName}</h3>
-                        <div className="border rounded-md">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead className="bg-gray-100 font-semibold w-1/2">Column Name</TableHead>
-                                <TableHead className="bg-gray-100 font-semibold w-1/2">Data Type</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {table.columns.map((col, idx) => (
-                                <TableRow key={idx}>
-                                  <TableCell className="font-medium">{col.column_name}</TableCell>
-                                  <TableCell className="text-gray-600">{col.data_type}</TableCell>
-                                </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
+              <SchemaViewer schemaInfo={schemaInfo} schemaError={schemaError} />
             </TabsContent>
           </Tabs>
         </ResizablePanel>
