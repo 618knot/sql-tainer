@@ -10,6 +10,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/componen
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircle } from 'lucide-react'
+import { SchemaViewer, type SchemaInfo } from '@/components/question/SchemaViewer'
 
 export const Route = createFileRoute('/question/$id')({
   component: QuestionPage,
@@ -31,8 +32,39 @@ function QuestionPage() {
   const [expectedColumns, setExpectedColumns] = useState<string[]>([])
   const [expectedError, setExpectedError] = useState<string | null>(null)
 
+  // Schema state
+  const [schemaInfo, setSchemaInfo] = useState<SchemaInfo[] | null>(null)
+  const [schemaError, setSchemaError] = useState<string | null>(null)
+
   if (!question) {
     return <div className="p-8">問題が見つかりません。</div>
+  }
+
+  const loadSchema = async () => {
+    if (!question.tables || question.tables.length === 0) {
+      setSchemaInfo([])
+      return
+    }
+
+    try {
+      setSchemaError(null)
+      const schemas = []
+      for (const table of question.tables) {
+        const res = await client.query(`
+          SELECT column_name, data_type
+          FROM information_schema.columns
+          WHERE table_name = $1
+          ORDER BY ordinal_position;
+        `, [table])
+        schemas.push({
+          tableName: table,
+          columns: res.rows as { column_name: string; data_type: string }[],
+        })
+      }
+      setSchemaInfo(schemas)
+    } catch {
+      setSchemaError('スキーマ情報の読み込みに失敗しました。')
+    }
   }
 
   const loadExpected = async () => {
@@ -44,7 +76,7 @@ function QuestionPage() {
         setExpectedColumns(Object.keys(expectedRes.rows[0] as object))
       }
       return expectedRes.rows
-    } catch (e) {
+    } catch {
       setExpectedError('期待される結果の読み込みに失敗しました。')
       return null
     }
@@ -143,6 +175,7 @@ function QuestionPage() {
               <TabsList className="h-8">
                 <TabsTrigger value="result" className="text-xs px-3 py-1 h-6">あなたの結果</TabsTrigger>
                 <TabsTrigger value="expected" onClick={() => {if (!expectedResult) loadExpected()}} className="text-xs px-3 py-1 h-6">期待される結果</TabsTrigger>
+                <TabsTrigger value="schema" onClick={() => {if (!schemaInfo) loadSchema()}} className="text-xs px-3 py-1 h-6">スキーマ</TabsTrigger>
               </TabsList>
 
               {isCorrect !== null && status === 'SUCCESS' && (
@@ -236,6 +269,10 @@ function QuestionPage() {
                     </Table>
                   ) : null}
                </div>
+            </TabsContent>
+
+            <TabsContent value="schema" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
+              <SchemaViewer schemaInfo={schemaInfo} schemaError={schemaError} />
             </TabsContent>
           </Tabs>
         </ResizablePanel>

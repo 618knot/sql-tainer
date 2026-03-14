@@ -4,6 +4,7 @@ export interface Question {
   description: string
   expectedQuery: string
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
+  tables: string[]
 }
 
 export const questions: Question[] = [
@@ -13,6 +14,7 @@ export const questions: Question[] = [
     description: 'IT部門（department_id = 1）に所属するすべての従業員の情報を取得してください。',
     expectedQuery: 'SELECT * FROM employees WHERE department_id = 1;',
     difficulty: 'EASY',
+    tables: ['employees', 'departments'],
   },
   {
     id: '2',
@@ -20,6 +22,7 @@ export const questions: Question[] = [
     description: 'すべての従業員の名前(name)と給与(salary)を取得し、給与が高い順に並び替えてください。',
     expectedQuery: 'SELECT name, salary FROM employees ORDER BY salary DESC;',
     difficulty: 'EASY',
+    tables: ['employees'],
   },
 ]
 
