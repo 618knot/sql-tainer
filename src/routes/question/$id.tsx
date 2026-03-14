@@ -82,7 +82,8 @@ function QuestionPage() {
       setIsCorrect(isMatch)
 
     } catch (err: any) {
-      setError(err.message)
+      console.error('SQL Execution Error:', err)
+      setError('クエリの実行中にエラーが発生しました。SQL構文を確認してください。')
       setResult(null)
       setStatus('ERROR')
       setIsCorrect(null)
