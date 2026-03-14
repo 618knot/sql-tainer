@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Editor } from '@monaco-editor/react'
 import { client } from '@/db'
 import { questions } from '@/lib/questions'
@@ -27,15 +27,15 @@ function QuestionPage() {
   // Expected result state
   const [expectedResult, setExpectedResult] = useState<any[] | null>(null)
   const [expectedColumns, setExpectedColumns] = useState<string[]>([])
+  const [loadedId, setLoadedId] = useState<string | null>(null)
 
-  if (!question) {
-    return <div className="p-8">問題が見つかりません。</div>
-  }
+  const loadExpected = useCallback(async () => {
+    if (!question) return []
 
-  const loadExpected = async () => {
     try {
       const expectedRes = await client.query(question.expectedQuery)
       setExpectedResult(expectedRes.rows)
+      setLoadedId(id)
       if (expectedRes.rows.length > 0) {
         setExpectedColumns(Object.keys(expectedRes.rows[0] as object))
       }
@@ -44,6 +44,17 @@ function QuestionPage() {
       console.error('Failed to load expected results:', e)
       return []
     }
+  }, [id, question])
+
+  useEffect(() => {
+    setExpectedResult(null)
+    setExpectedColumns([])
+    setLoadedId(null)
+    loadExpected()
+  }, [id, loadExpected])
+
+  if (!question) {
+    return <div className="p-8">問題が見つかりません。</div>
   }
 
   const executeQuery = async () => {
@@ -69,7 +80,9 @@ function QuestionPage() {
       setStatus('SUCCESS')
 
       // 正誤判定ロジック
-      const expectedRows = await loadExpected()
+      const expectedRows = (expectedResult && loadedId === id)
+        ? expectedResult
+        : await loadExpected()
 
       // Compare lengths
       if (res.rows.length !== expectedRows.length) {
