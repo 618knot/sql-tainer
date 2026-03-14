@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Play, ArrowLeft } from 'lucide-react'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 export const Route = createFileRoute('/question/$id')({
   component: QuestionPage,
@@ -153,9 +155,13 @@ function QuestionPage() {
             <TabsContent value="result" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
               <div className="p-4 flex-1">
                 {status === 'ERROR' && (
-                  <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200 whitespace-pre-wrap font-mono text-sm">
-                    {error}
-                  </div>
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription className="font-mono text-xs whitespace-pre-wrap">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
                 )}
 
                 {status === 'SUCCESS' && result && (
@@ -194,9 +200,13 @@ function QuestionPage() {
             <TabsContent value="expected" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
                <div className="p-4 flex-1">
                   {expectedError && (
-                    <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200 whitespace-pre-wrap font-mono text-sm">
-                      {expectedError}
-                    </div>
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>
+                        {expectedError}
+                      </AlertDescription>
+                    </Alert>
                   )}
 
                   {!expectedResult && !expectedError ? (
@@ -205,7 +215,7 @@ function QuestionPage() {
                     </div>
                   ) : expectedResult && expectedResult.length === 0 ? (
                     <div className="text-gray-500 italic p-4">0 rows returned</div>
-                  ) : (
+                  ) : expectedResult ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -224,7 +234,7 @@ function QuestionPage() {
                         ))}
                       </TableBody>
                     </Table>
-                  )}
+                  ) : null}
                </div>
             </TabsContent>
           </Tabs>
