@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { questionsMap } from '../lib/questions'
+import { questions } from '../lib/questions'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -14,7 +14,7 @@ function Index() {
       <p className="text-gray-600 mb-8">ブラウザ上でSQLを書いて実行できる学習アプリです。好きな問題を選んで挑戦しましょう。</p>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {Array.from(questionsMap.values()).map((q) => (
+        {questions.map((q) => (
           <Link key={q.id} to={`/question/${q.id}`} className="block hover:opacity-80 transition-opacity">
             <Card className="h-full">
               <CardHeader>

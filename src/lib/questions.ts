@@ -6,7 +6,7 @@ export interface Question {
   difficulty: 'EASY' | 'MEDIUM' | 'HARD'
 }
 
-const questions: Question[] = [
+export const questions: Question[] = [
   {
     id: '1',
     title: 'IT部門の従業員一覧',
