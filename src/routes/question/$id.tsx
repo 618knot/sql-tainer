@@ -8,6 +8,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Play, ArrowLeft } from 'lucide-react'
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { AlertCircle } from 'lucide-react'
 
 export const Route = createFileRoute('/question/$id')({
   component: QuestionPage,
@@ -27,6 +29,7 @@ function QuestionPage() {
   // Expected result state
   const [expectedResult, setExpectedResult] = useState<any[] | null>(null)
   const [expectedColumns, setExpectedColumns] = useState<string[]>([])
+  const [expectedError, setExpectedError] = useState<string | null>(null)
 
   if (!question) {
     return <div className="p-8">問題が見つかりません。</div>
@@ -34,6 +37,7 @@ function QuestionPage() {
 
   const loadExpected = async () => {
     try {
+      setExpectedError(null)
       const expectedRes = await client.query(question.expectedQuery)
       setExpectedResult(expectedRes.rows)
       if (expectedRes.rows.length > 0) {
@@ -41,8 +45,8 @@ function QuestionPage() {
       }
       return expectedRes.rows
     } catch (e) {
-      console.error('Failed to load expected results:', e)
-      return []
+      setExpectedError('期待される結果の読み込みに失敗しました。')
+      return null
     }
   }
 
@@ -70,6 +74,11 @@ function QuestionPage() {
 
       // 正誤判定ロジック
       const expectedRows = await loadExpected()
+
+      if (!expectedRows) {
+        setIsCorrect(null)
+        return
+      }
 
       // Compare lengths
       if (res.rows.length !== expectedRows.length) {
@@ -146,9 +155,13 @@ function QuestionPage() {
             <TabsContent value="result" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
               <div className="p-4 flex-1">
                 {status === 'ERROR' && (
-                  <div className="p-4 bg-red-50 text-red-600 rounded-md border border-red-200 whitespace-pre-wrap font-mono text-sm">
-                    {error}
-                  </div>
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription className="font-mono text-xs whitespace-pre-wrap">
+                      {error}
+                    </AlertDescription>
+                  </Alert>
                 )}
 
                 {status === 'SUCCESS' && result && (
@@ -186,13 +199,23 @@ function QuestionPage() {
 
             <TabsContent value="expected" className="flex-1 overflow-auto p-0 m-0 data-[state=active]:flex flex-col">
                <div className="p-4 flex-1">
-                  {!expectedResult ? (
+                  {expectedError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Error</AlertTitle>
+                      <AlertDescription>
+                        {expectedError}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {!expectedResult && !expectedError ? (
                     <div className="flex h-full items-center justify-center text-gray-400">
                       読み込み中...
                     </div>
-                  ) : expectedResult.length === 0 ? (
+                  ) : expectedResult && expectedResult.length === 0 ? (
                     <div className="text-gray-500 italic p-4">0 rows returned</div>
-                  ) : (
+                  ) : expectedResult ? (
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -211,7 +234,7 @@ function QuestionPage() {
                         ))}
                       </TableBody>
                     </Table>
-                  )}
+                  ) : null}
                </div>
             </TabsContent>
           </Tabs>
