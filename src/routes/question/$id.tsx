@@ -100,7 +100,7 @@ function QuestionPage() {
         <p className="text-gray-600 mt-2">{question.description}</p>
       </div>
 
-      <ResizablePanelGroup direction="vertical" className="flex-1 rounded-lg border bg-white shadow-sm overflow-hidden">
+      <ResizablePanelGroup orientation="vertical" className="flex-1 rounded-lg border bg-white shadow-sm overflow-hidden">
         <ResizablePanel defaultSize={50} className="flex flex-col relative">
           <div className="p-2 border-b bg-gray-50 flex justify-between items-center z-10">
             <span className="text-sm font-semibold text-gray-700 ml-2">SQL Editor</span>

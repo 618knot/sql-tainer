@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { questions } from '../lib/questions'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 export const Route = createFileRoute('/')({
@@ -15,7 +15,7 @@ function Index() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {questions.map((q) => (
-          <Link key={q.id} to={`/question/${q.id}`} className="block hover:opacity-80 transition-opacity">
+          <Link key={q.id} to="/question/$id" params={{ id: q.id }} className="block hover:opacity-80 transition-opacity">
             <Card className="h-full">
               <CardHeader>
                 <div className="flex justify-between items-start">
