@@ -22,3 +22,7 @@ export const questions: Question[] = [
     difficulty: 'EASY',
   },
 ]
+
+export const questionsMap = new Map<string, Question>(
+  questions.map((q) => [q.id, q])
+)
