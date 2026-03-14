@@ -2,7 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Editor } from '@monaco-editor/react'
 import { client } from '@/db'
-import { questions } from '@/lib/questions'
+import { questionsMap } from '@/lib/questions'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Play, ArrowLeft } from 'lucide-react'
@@ -15,7 +15,7 @@ export const Route = createFileRoute('/question/$id')({
 
 function QuestionPage() {
   const { id } = Route.useParams()
-  const question = questions.find(q => q.id === id)
+  const question = questionsMap.get(id)
 
   const [query, setQuery] = useState('')
   const [result, setResult] = useState<any[] | null>(null)
